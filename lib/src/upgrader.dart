@@ -144,7 +144,12 @@ class Upgrader {
   String? _userIgnoredVersion;
   bool _hasAlerted = false;
   bool _isCriticalUpdate = false;
-
+  TextStyle? titleTextStyle;
+  TextStyle? messageTextStyle;
+  TextStyle? promptTextStyle;
+  TextStyle? releaseNoteTitleTextStyle;
+  TextStyle? releaseNoteTextStyle;
+  TextStyle? buttonTextStyle;
   final notInitializedExceptionMessage =
       'initialize() not called. Must be called first.';
 
@@ -168,6 +173,12 @@ class Upgrader {
     this.canDismissDialog = false,
     this.countryCode,
     this.minAppVersion,
+    this.titleTextStyle = const TextStyle(),
+    this.messageTextStyle = const TextStyle(),
+    this.promptTextStyle = const TextStyle(),
+    this.releaseNoteTitleTextStyle = const TextStyle(),
+    this.releaseNoteTextStyle = const TextStyle(),
+    this.buttonTextStyle = const TextStyle(),
     this.dialogStyle = UpgradeDialogStyle.material,
     TargetPlatform? platform,
   })  : client = client ?? http.Client(),
@@ -573,7 +584,7 @@ class Upgrader {
 
     return false;
   }
-
+//Update style for dialog
   AlertDialog _alertDialog(String title, String message, String? releaseNotes,
       BuildContext context) {
     Widget? notes;
@@ -584,41 +595,44 @@ class Upgrader {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(messages.message(UpgraderMessage.releaseNotes)!,
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(messages.message(UpgraderMessage.releaseNotes)!, style: releaseNoteTitleTextStyle,),
               Text(
                 releaseNotes,
-                maxLines: 15,
+                style: releaseNoteTextStyle,
+                maxLines: 6, //Reduce number of maxLines from 15 to 6 to minimize scrollable dialog content/
                 overflow: TextOverflow.ellipsis,
               ),
+
             ],
-          ));
+          ),
+      );
     }
     return AlertDialog(
-      title: Text(title),
+      title: Text(title, style: titleTextStyle),
       content: SingleChildScrollView(
           child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text(message),
-          Padding(
-              padding: const EdgeInsets.only(top: 15.0),
-              child: Text(messages.message(UpgraderMessage.prompt)!)),
-          if (notes != null) notes,
-        ],
-      )),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(message,style:messageTextStyle),
+              if (notes != null) notes,
+              Padding(
+                padding: const EdgeInsets.only(top: 15.0),
+                child: Text(messages.message(UpgraderMessage.prompt,)!, style: promptTextStyle),
+              ),
+            ],
+          )),
       actions: <Widget>[
         if (showIgnore)
           TextButton(
-              child: Text(messages.message(UpgraderMessage.buttonTitleIgnore)!),
+              child: Text(messages.message(UpgraderMessage.buttonTitleIgnore)!, style: buttonTextStyle),
               onPressed: () => onUserIgnored(context, true)),
         if (showLater)
           TextButton(
-              child: Text(messages.message(UpgraderMessage.buttonTitleLater)!),
+              child: Text(messages.message(UpgraderMessage.buttonTitleLater)!, style: buttonTextStyle),
               onPressed: () => onUserLater(context, true)),
         TextButton(
-            child: Text(messages.message(UpgraderMessage.buttonTitleUpdate)!),
+            child: Text(messages.message(UpgraderMessage.buttonTitleUpdate)!, style: buttonTextStyle),
             onPressed: () => onUserUpdated(context, !blocked())),
       ],
     );
@@ -632,41 +646,42 @@ class Upgrader {
           padding: const EdgeInsets.only(top: 15.0),
           child: Column(
             children: <Widget>[
-              Text(messages.message(UpgraderMessage.releaseNotes)!,
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(messages.message(UpgraderMessage.releaseNotes)!, style: releaseNoteTitleTextStyle),
               Text(
                 releaseNotes,
-                maxLines: 14,
+                style: releaseNoteTextStyle,
+                maxLines: 6, //Reduce the number of maxLines from 14 to 6 so that notes doesn't change the format of other pieces of content.
                 overflow: TextOverflow.ellipsis,
               ),
             ],
           ));
     }
     return CupertinoAlertDialog(
-      title: Text(title),
+      title: Text(title, style: titleTextStyle),
       content: Column(
         // mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          Text(message),
-          Padding(
-              padding: const EdgeInsets.only(top: 15.0),
-              child: Text(messages.message(UpgraderMessage.prompt)!)),
+          Text(message, style: messageTextStyle),
           if (notes != null) notes,
+          Padding(
+            padding: const EdgeInsets.only(top: 15.0),
+            child: Text(messages.message(UpgraderMessage.prompt)!, style: promptTextStyle),
+          ),
         ],
       ),
       actions: <Widget>[
         if (showIgnore)
           CupertinoDialogAction(
-              child: Text(messages.message(UpgraderMessage.buttonTitleIgnore)!),
+              child: Text(messages.message(UpgraderMessage.buttonTitleIgnore)!, style: buttonTextStyle),
               onPressed: () => onUserIgnored(context, true)),
         if (showLater)
           CupertinoDialogAction(
-              child: Text(messages.message(UpgraderMessage.buttonTitleLater)!),
+              child: Text(messages.message(UpgraderMessage.buttonTitleLater)!, style: buttonTextStyle),
               onPressed: () => onUserLater(context, true)),
         CupertinoDialogAction(
             isDefaultAction: true,
-            child: Text(messages.message(UpgraderMessage.buttonTitleUpdate)!),
+            child: Text(messages.message(UpgraderMessage.buttonTitleUpdate)!, style: buttonTextStyle),
             onPressed: () => onUserUpdated(context, !blocked())),
       ],
     );
