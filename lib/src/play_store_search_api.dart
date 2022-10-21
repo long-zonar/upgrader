@@ -24,23 +24,26 @@ class PlayStoreSearchAPI {
     assert(id.isNotEmpty);
     if (id.isEmpty) return null;
 
-    final url =
-        lookupURLById(id, country: country, useCacheBuster: useCacheBuster)!;
+    try {
+      final url = lookupURLById(id, country: country, useCacheBuster: useCacheBuster)!;
 
-    final response = await client!.get(Uri.parse(url));
+      final response = await client!.get(Uri.parse(url));
 
-    if (response.statusCode != 200) {
-      print('upgrader: Can\'t find an app in the Play Store with the id: $id');
+      if (response.statusCode != 200) {
+        print('upgrader: Can\'t find an app in the Play Store with the id: $id');
+        return null;
+      }
+
+      // Uncomment for creating unit test input files.
+      // final file = io.File('file.txt');
+      // await file.writeAsBytes(response.bodyBytes);
+
+      final decodedResults = _decodeResults(response.body);
+
+      return decodedResults;
+    } catch (e) {
       return null;
     }
-
-    // Uncomment for creating unit test input files.
-    // final file = io.File('file.txt');
-    // await file.writeAsBytes(response.bodyBytes);
-
-    final decodedResults = _decodeResults(response.body);
-
-    return decodedResults;
   }
 
   String? lookupURLById(String id,
